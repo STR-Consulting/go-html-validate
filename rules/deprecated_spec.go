@@ -1,0 +1,271 @@
+package rules
+
+// DeprecatedElements maps deprecated HTML elements to replacement guidance.
+// Based on HTML5 spec and MDN documentation.
+var DeprecatedElements = map[string]string{
+	// Obsolete in HTML5
+	"acronym":   "use <abbr> instead",
+	"applet":    "use <object> or <embed> instead",
+	"basefont":  "use CSS font properties instead",
+	"bgsound":   "use <audio> instead",
+	"big":       "use CSS font-size instead",
+	"blink":     "use CSS animation instead",
+	"center":    "use CSS text-align or flexbox instead",
+	"command":   "removed from spec",
+	"content":   "removed from spec",
+	"dir":       "use <ul> instead",
+	"font":      "use CSS font properties instead",
+	"frame":     "use <iframe> or CSS instead",
+	"frameset":  "use <iframe> or CSS instead",
+	"image":     "use <img> instead (non-standard)",
+	"isindex":   "use <input> instead",
+	"keygen":    "use Web Crypto API instead",
+	"listing":   "use <pre> or <code> instead",
+	"marquee":   "use CSS animation instead",
+	"menuitem":  "removed from spec",
+	"multicol":  "use CSS columns instead",
+	"nextid":    "removed from spec",
+	"nobr":      "use CSS white-space instead",
+	"noembed":   "removed from spec",
+	"noframes":  "frames are obsolete",
+	"param":     "use object data attribute instead",
+	"plaintext": "use <pre> or text/plain MIME type",
+	"rb":        "removed from spec",
+	"rtc":       "removed from spec",
+	"shadow":    "removed from spec",
+	"spacer":    "use CSS margin/padding instead",
+	"strike":    "use <del> or <s> instead",
+	"tt":        "use <code>, <kbd>, or <samp> instead",
+	"xmp":       "use <pre> and escape HTML instead",
+}
+
+// DeprecatedAttributes maps element names to their deprecated attributes.
+// Empty string key "" means the attribute is globally deprecated.
+var DeprecatedAttributes = map[string]map[string]string{
+	// Global deprecated attributes
+	"": {
+		"align":        "use CSS text-align or flexbox",
+		"bgcolor":      "use CSS background-color",
+		"border":       "use CSS border",
+		"cellpadding":  "use CSS padding",
+		"cellspacing":  "use CSS border-spacing",
+		"char":         "use CSS text-align",
+		"charoff":      "use CSS text-align",
+		"clear":        "use CSS clear",
+		"compact":      "use CSS",
+		"frame":        "use CSS border",
+		"frameborder":  "use CSS border",
+		"height":       "use CSS height (except on img, video, canvas)",
+		"hspace":       "use CSS margin",
+		"marginheight": "use CSS margin",
+		"marginwidth":  "use CSS margin",
+		"noshade":      "use CSS",
+		"nowrap":       "use CSS white-space",
+		"rules":        "use CSS border",
+		"scrolling":    "use CSS overflow",
+		"size":         "use CSS",
+		"valign":       "use CSS vertical-align",
+		"vspace":       "use CSS margin",
+		"width":        "use CSS width (except on img, video, canvas)",
+	},
+
+	// Element-specific deprecated attributes
+	"a": {
+		"charset": "use Content-Type header",
+		"coords":  "not supported",
+		"name":    "use id instead",
+		"rev":     "use rel instead",
+		"shape":   "not supported",
+	},
+	"body": {
+		"alink":      "use CSS :active selector",
+		"background": "use CSS background-image",
+		"bgcolor":    "use CSS background-color",
+		"link":       "use CSS :link selector",
+		"text":       "use CSS color",
+		"vlink":      "use CSS :visited selector",
+	},
+	"br": {
+		"clear": "use CSS clear",
+	},
+	"caption": {
+		"align": "use CSS caption-side",
+	},
+	"col": {
+		"align":   "use CSS text-align",
+		"char":    "use CSS text-align",
+		"charoff": "use CSS text-align",
+		"valign":  "use CSS vertical-align",
+		"width":   "use CSS width",
+	},
+	"div": {
+		"align": "use CSS text-align",
+	},
+	"embed": {
+		"align": "use CSS",
+		"name":  "use id instead",
+	},
+	"form": {
+		"accept": "use accept on input elements",
+	},
+	"h1": {"align": "use CSS text-align"},
+	"h2": {"align": "use CSS text-align"},
+	"h3": {"align": "use CSS text-align"},
+	"h4": {"align": "use CSS text-align"},
+	"h5": {"align": "use CSS text-align"},
+	"h6": {"align": "use CSS text-align"},
+	"head": {
+		"profile": "removed from spec",
+	},
+	"hr": {
+		"align":   "use CSS margin",
+		"color":   "use CSS background-color",
+		"noshade": "use CSS",
+		"size":    "use CSS height",
+		"width":   "use CSS width",
+	},
+	"html": {
+		"manifest": "use service workers instead",
+		"version":  "removed from spec",
+	},
+	"iframe": {
+		"align":        "use CSS",
+		"frameborder":  "use CSS border",
+		"longdesc":     "use aria-describedby",
+		"marginheight": "use CSS margin",
+		"marginwidth":  "use CSS margin",
+		"scrolling":    "use CSS overflow",
+	},
+	"img": {
+		"align":    "use CSS float or vertical-align",
+		"border":   "use CSS border",
+		"hspace":   "use CSS margin",
+		"longdesc": "use aria-describedby",
+		"name":     "use id instead",
+		"vspace":   "use CSS margin",
+	},
+	"input": {
+		"align":  "use CSS",
+		"usemap": "not supported",
+	},
+	"legend": {
+		"align": "use CSS",
+	},
+	"li": {
+		"type":  "use CSS list-style-type",
+		"value": "use value attribute on ol instead",
+	},
+	"link": {
+		"charset": "use Content-Type header",
+		"rev":     "use rel instead",
+		"target":  "not supported",
+	},
+	"menu": {
+		"compact": "use CSS",
+	},
+	"meta": {
+		"scheme": "removed from spec",
+	},
+	"object": {
+		"align":    "use CSS",
+		"archive":  "removed from spec",
+		"border":   "use CSS border",
+		"classid":  "removed from spec",
+		"code":     "removed from spec",
+		"codebase": "removed from spec",
+		"codetype": "removed from spec",
+		"declare":  "removed from spec",
+		"hspace":   "use CSS margin",
+		"standby":  "removed from spec",
+		"vspace":   "use CSS margin",
+	},
+	"ol": {
+		"compact": "use CSS",
+	},
+	"p": {
+		"align": "use CSS text-align",
+	},
+	"pre": {
+		"width": "use CSS width",
+	},
+	"script": {
+		"charset":  "use UTF-8",
+		"language": "use type instead",
+	},
+	"table": {
+		"align":       "use CSS margin or float",
+		"bgcolor":     "use CSS background-color",
+		"border":      "use CSS border",
+		"cellpadding": "use CSS padding",
+		"cellspacing": "use CSS border-spacing",
+		"frame":       "use CSS border",
+		"rules":       "use CSS border",
+		"summary":     "use caption or aria-describedby",
+		"width":       "use CSS width",
+	},
+	"tbody": {
+		"align":   "use CSS text-align",
+		"char":    "use CSS text-align",
+		"charoff": "use CSS text-align",
+		"valign":  "use CSS vertical-align",
+	},
+	"td": {
+		"abbr":    "removed from spec for td",
+		"align":   "use CSS text-align",
+		"axis":    "removed from spec",
+		"bgcolor": "use CSS background-color",
+		"char":    "use CSS text-align",
+		"charoff": "use CSS text-align",
+		"height":  "use CSS height",
+		"nowrap":  "use CSS white-space",
+		"scope":   "use on th instead",
+		"valign":  "use CSS vertical-align",
+		"width":   "use CSS width",
+	},
+	"tfoot": {
+		"align":   "use CSS text-align",
+		"char":    "use CSS text-align",
+		"charoff": "use CSS text-align",
+		"valign":  "use CSS vertical-align",
+	},
+	"th": {
+		"align":   "use CSS text-align",
+		"axis":    "removed from spec",
+		"bgcolor": "use CSS background-color",
+		"char":    "use CSS text-align",
+		"charoff": "use CSS text-align",
+		"height":  "use CSS height",
+		"nowrap":  "use CSS white-space",
+		"valign":  "use CSS vertical-align",
+		"width":   "use CSS width",
+	},
+	"thead": {
+		"align":   "use CSS text-align",
+		"char":    "use CSS text-align",
+		"charoff": "use CSS text-align",
+		"valign":  "use CSS vertical-align",
+	},
+	"tr": {
+		"align":   "use CSS text-align",
+		"bgcolor": "use CSS background-color",
+		"char":    "use CSS text-align",
+		"charoff": "use CSS text-align",
+		"valign":  "use CSS vertical-align",
+	},
+	"ul": {
+		"compact": "use CSS",
+		"type":    "use CSS list-style-type",
+	},
+}
+
+// NonDeprecatedSizeAttrs lists elements where width/height are NOT deprecated.
+// These elements have intrinsic dimensions that should be specified in HTML.
+var NonDeprecatedSizeAttrs = map[string]bool{
+	"img":    true,
+	"video":  true,
+	"canvas": true,
+	"svg":    true,
+	"embed":  true,
+	"object": true,
+	"iframe": true,
+}
