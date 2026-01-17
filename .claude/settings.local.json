@@ -22,7 +22,12 @@
       "mcp__acp__Write",
       "WebSearch",
       "WebFetch(domain:zed.dev)",
-      "Bash(.claude/skills/commit/commit.sh:*)"
+      "Bash(.claude/skills/commit/commit.sh:*)",
+      "Bash(beans query:*)",
+      "WebFetch(domain:htmx.org)",
+      "WebFetch(domain:v2.htmx.org)",
+      "WebFetch(domain:four.htmx.org)",
+      "Bash(gofmt:*)"
     ]
   }
 }

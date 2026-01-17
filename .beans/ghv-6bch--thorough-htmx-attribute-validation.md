@@ -29,7 +29,7 @@ Current state (`rules/htmx.go`, `rules/input_attributes.go`):
 
 ### Phase 2: Pattern matching and semantic checks
 
-- [ ] Validate hx-on:* event names match known htmx events (e.g., `hx-on:htmx:after-request` vs typos)
+- [x] Validate hx-on:* event names match known htmx events (e.g., `hx-on:htmx:after-request` vs typos)
 - [ ] Warn on hx-post/hx-get on submit buttons instead of parent form (common mistake)
 - [ ] Validate hx-vals/hx-headers JSON syntax
 - [ ] Check hx-include CSS selector validity

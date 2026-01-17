@@ -76,6 +76,116 @@ var (
 	queueModes = map[string]bool{"first": true, "last": true, "all": true, "none": true}
 )
 
+// Known DOM events (valid in hx-on:*).
+var knownDOMEvents = map[string]bool{
+	// Mouse events
+	"click": true, "dblclick": true, "mousedown": true, "mouseup": true,
+	"mousemove": true, "mouseenter": true, "mouseleave": true, "mouseover": true, "mouseout": true,
+	// Keyboard events
+	"keydown": true, "keyup": true, "keypress": true,
+	// Form events
+	"submit": true, "change": true, "input": true, "focus": true, "blur": true, "reset": true,
+	"invalid": true, "select": true,
+	// Document/Window events
+	"load": true, "unload": true, "resize": true, "scroll": true, "error": true,
+	"beforeunload": true, "hashchange": true, "popstate": true,
+	// Drag events
+	"drag": true, "dragstart": true, "dragend": true, "dragover": true,
+	"dragenter": true, "dragleave": true, "drop": true,
+	// Touch events
+	"touchstart": true, "touchend": true, "touchmove": true, "touchcancel": true,
+	// Pointer events
+	"pointerdown": true, "pointerup": true, "pointermove": true, "pointerenter": true,
+	"pointerleave": true, "pointerover": true, "pointerout": true, "pointercancel": true,
+	// Animation/transition events
+	"animationstart": true, "animationend": true, "animationiteration": true,
+	"transitionstart": true, "transitionend": true, "transitionrun": true, "transitioncancel": true,
+	// Clipboard events
+	"copy": true, "cut": true, "paste": true,
+	// Media events
+	"play": true, "pause": true, "ended": true, "volumechange": true, "seeking": true,
+	"seeked": true, "timeupdate": true, "loadeddata": true, "loadedmetadata": true,
+	// Other
+	"contextmenu": true, "wheel": true, "compositionstart": true, "compositionend": true,
+}
+
+// Known htmx v2 events (htmx:eventName format).
+var knownHTMXv2Events = map[string]bool{
+	"htmx:abort":                     true,
+	"htmx:afterOnLoad":               true,
+	"htmx:afterProcessNode":          true,
+	"htmx:afterRequest":              true,
+	"htmx:afterSettle":               true,
+	"htmx:afterSwap":                 true,
+	"htmx:beforeCleanupElement":      true,
+	"htmx:beforeOnLoad":              true,
+	"htmx:beforeProcessNode":         true,
+	"htmx:beforeRequest":             true,
+	"htmx:beforeSend":                true,
+	"htmx:beforeSwap":                true,
+	"htmx:beforeTransition":          true,
+	"htmx:configRequest":             true,
+	"htmx:confirm":                   true,
+	"htmx:historyCacheError":         true,
+	"htmx:historyCacheHit":           true,
+	"htmx:historyCacheMiss":          true,
+	"htmx:historyCacheMissLoad":      true,
+	"htmx:historyCacheMissLoadError": true,
+	"htmx:historyRestore":            true,
+	"htmx:beforeHistorySave":         true,
+	"htmx:beforeHistoryUpdate":       true,
+	"htmx:load":                      true,
+	"htmx:noSSESourceError":          true,
+	"htmx:oobAfterSwap":              true,
+	"htmx:oobBeforeSwap":             true,
+	"htmx:oobErrorNoTarget":          true,
+	"htmx:onLoadError":               true,
+	"htmx:prompt":                    true,
+	"htmx:pushedIntoHistory":         true,
+	"htmx:replacedInHistory":         true,
+	"htmx:responseError":             true,
+	"htmx:sendAbort":                 true,
+	"htmx:sendError":                 true,
+	"htmx:sseError":                  true,
+	"htmx:swapError":                 true,
+	"htmx:targetError":               true,
+	"htmx:timeout":                   true,
+	"htmx:trigger":                   true,
+	"htmx:validateUrl":               true,
+	"htmx:validation:validate":       true,
+	"htmx:validation:failed":         true,
+	"htmx:validation:halted":         true,
+	"htmx:xhr:abort":                 true,
+	"htmx:xhr:loadstart":             true,
+	"htmx:xhr:loadend":               true,
+	"htmx:xhr:progress":              true,
+}
+
+// Known htmx v4 event phases and actions (htmx:phase:action format).
+var knownHTMXv4Phases = map[string]bool{
+	"before":  true,
+	"after":   true,
+	"error":   true,
+	"finally": true,
+}
+
+var knownHTMXv4Actions = map[string]bool{
+	"request":        true,
+	"swap":           true,
+	"settle":         true,
+	"send":           true,
+	"process":        true,
+	"cleanup":        true,
+	"onLoad":         true,
+	"transition":     true,
+	"viewTransition": true,
+	"history":        true,
+	"historyUpdate":  true,
+	"historySave":    true,
+	"sse":            true,
+	"oob":            true,
+}
+
 // Check examines the document for invalid htmx attribute values.
 func (r *HTMXAttributes) Check(doc *parser.Document) []Result {
 	if !r.htmxEnabled {
@@ -98,13 +208,15 @@ func (r *HTMXAttributes) Check(doc *parser.Document) []Result {
 
 			var validationResults []Result
 
-			switch attrName {
-			case "hx-swap":
+			switch {
+			case attrName == "hx-swap":
 				validationResults = r.validateSwap(doc.Filename, n, attr.Val)
-			case "hx-trigger":
+			case attrName == "hx-trigger":
 				validationResults = r.validateTrigger(doc.Filename, n, attr.Val)
-			case "hx-target":
+			case attrName == "hx-target":
 				validationResults = r.validateTarget(doc.Filename, n, attr.Val)
+			case strings.HasPrefix(attrName, "hx-on:") || strings.HasPrefix(attrName, "hx-on-"):
+				validationResults = r.validateHxOn(doc.Filename, n, attr.Key)
 			}
 
 			results = append(results, validationResults...)
@@ -497,4 +609,148 @@ func isValidElement(name string) bool {
 		"u": true, "ul": true, "var": true, "video": true, "wbr": true,
 	}
 	return elements[name]
+}
+
+// validateHxOn checks hx-on:* attribute event names.
+// Validates that the event name is a known DOM event or htmx event.
+func (r *HTMXAttributes) validateHxOn(filename string, n *parser.Node, attrKey string) []Result {
+	// Extract event name from attribute key
+	// hx-on:click -> click
+	// hx-on:htmx:afterRequest -> htmx:afterRequest
+	// hx-on-click -> click (deprecated but still supported)
+	// hx-on::htmx:afterRequest -> htmx:afterRequest (v4 shorthand)
+	var eventName string
+	if strings.HasPrefix(attrKey, "hx-on:") {
+		eventName = strings.TrimPrefix(attrKey, "hx-on:")
+	} else if strings.HasPrefix(attrKey, "hx-on-") {
+		eventName = strings.TrimPrefix(attrKey, "hx-on-")
+	}
+
+	if eventName == "" {
+		return []Result{{
+			Rule:     RuleHTMXAttributes,
+			Message:  "hx-on:* requires an event name",
+			Filename: filename,
+			Line:     n.Line,
+			Col:      n.Col,
+			Severity: Error,
+		}}
+	}
+
+	// Handle htmx 4 shorthand (hx-on::event for htmx: prefixed events)
+	// e.g., hx-on::after-request is shorthand for hx-on:htmx:after:request
+	if strings.HasPrefix(eventName, ":") {
+		eventName = "htmx" + eventName
+	}
+
+	// Check for DOM events (lowercase comparison)
+	lowerEvent := strings.ToLower(eventName)
+	if knownDOMEvents[lowerEvent] {
+		return nil // Valid DOM event
+	}
+
+	// Check for htmx events
+	if strings.HasPrefix(eventName, "htmx:") || strings.HasPrefix(lowerEvent, "htmx:") {
+		return r.validateHTMXEvent(filename, n, eventName)
+	}
+
+	// Unknown event - could be a custom event, warn
+	return []Result{{
+		Rule:     RuleHTMXAttributes,
+		Message:  "unknown event '" + eventName + "' in hx-on:*; if this is a custom event, ignore this warning",
+		Filename: filename,
+		Line:     n.Line,
+		Col:      n.Col,
+		Severity: Warning,
+	}}
+}
+
+// validateHTMXEvent validates an htmx event name against known events.
+func (r *HTMXAttributes) validateHTMXEvent(filename string, n *parser.Node, eventName string) []Result {
+	// htmx v4 uses htmx:phase:action format
+	// htmx v2 uses htmx:eventName format (camelCase)
+
+	if r.htmxVersion == "4" {
+		return r.validateHTMXv4Event(filename, n, eventName)
+	}
+
+	// htmx v2 validation
+	// Note: HTML attributes are lowercased by the parser, so we need case-insensitive matching.
+	// We accept the event if it matches any known event case-insensitively.
+	for validEvent := range knownHTMXv2Events {
+		if strings.EqualFold(eventName, validEvent) {
+			return nil // Valid htmx v2 event (case-insensitive match)
+		}
+	}
+
+	return []Result{{
+		Rule:     RuleHTMXAttributes,
+		Message:  "unknown htmx event '" + eventName + "'",
+		Filename: filename,
+		Line:     n.Line,
+		Col:      n.Col,
+		Severity: Warning,
+	}}
+}
+
+// validateHTMXv4Event validates an htmx 4 event name (htmx:phase:action format).
+func (r *HTMXAttributes) validateHTMXv4Event(filename string, n *parser.Node, eventName string) []Result {
+	// htmx 4 uses htmx:phase:action[:sub-action] format
+	// e.g., htmx:after:request, htmx:before:swap, htmx:error
+
+	// Remove htmx: prefix
+	remainder := strings.TrimPrefix(eventName, "htmx:")
+	parts := strings.SplitN(remainder, ":", 2)
+
+	if len(parts) == 0 || parts[0] == "" {
+		return []Result{{
+			Rule:     RuleHTMXAttributes,
+			Message:  "invalid htmx event format '" + eventName + "'",
+			Filename: filename,
+			Line:     n.Line,
+			Col:      n.Col,
+			Severity: Error,
+		}}
+	}
+
+	// First part should be a phase
+	phase := strings.ToLower(parts[0])
+	if !knownHTMXv4Phases[phase] {
+		// Could be a standalone event like htmx:load, htmx:abort
+		standaloneEvents := map[string]bool{
+			"load": true, "abort": true, "trigger": true, "confirm": true, "prompt": true,
+		}
+		if standaloneEvents[phase] {
+			return nil // Valid standalone event
+		}
+
+		return []Result{{
+			Rule:     RuleHTMXAttributes,
+			Message:  "unknown htmx 4 event phase '" + parts[0] + "' in '" + eventName + "'",
+			Filename: filename,
+			Line:     n.Line,
+			Col:      n.Col,
+			Severity: Warning,
+		}}
+	}
+
+	// If there's a second part, it should be an action
+	if len(parts) > 1 && parts[1] != "" {
+		// Extract just the action (before any sub-action)
+		actionParts := strings.SplitN(parts[1], ":", 2)
+		action := strings.ToLower(actionParts[0])
+
+		if !knownHTMXv4Actions[action] {
+			return []Result{{
+				Rule:     RuleHTMXAttributes,
+				Message:  "unknown htmx 4 event action '" + actionParts[0] + "' in '" + eventName + "'",
+				Filename: filename,
+				Line:     n.Line,
+				Col:      n.Col,
+				Severity: Warning,
+			}}
+		}
+	}
+
+	return nil
 }

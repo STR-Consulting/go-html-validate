@@ -439,3 +439,122 @@ func TestLintContent_AttributeMisuseSkipsHTMX(t *testing.T) {
 		}
 	}
 }
+
+func TestLintContent_HTMXOnEvent(t *testing.T) {
+	tests := []htmxTestCase{
+		// Valid DOM events
+		{
+			name: "valid click event",
+			html: `<button hx-on:click="alert('clicked')">Click</button>`,
+		},
+		{
+			name: "valid submit event",
+			html: `<form hx-on:submit="validate()">Form</form>`,
+		},
+		{
+			name: "valid keydown event",
+			html: `<input hx-on:keydown="handle()">`,
+		},
+		{
+			name: "valid focus event",
+			html: `<input hx-on:focus="highlight()">`,
+		},
+		// Valid htmx v2 events
+		{
+			name: "valid htmx:afterRequest",
+			html: `<div hx-get="/api" hx-on:htmx:afterRequest="done()">content</div>`,
+		},
+		{
+			name: "valid htmx:beforeSwap",
+			html: `<div hx-get="/api" hx-on:htmx:beforeSwap="prep()">content</div>`,
+		},
+		{
+			name: "valid htmx:configRequest",
+			html: `<div hx-get="/api" hx-on:htmx:configRequest="config()">content</div>`,
+		},
+		{
+			name: "valid htmx:load",
+			html: `<div hx-get="/api" hx-on:htmx:load="loaded()">content</div>`,
+		},
+		// Valid deprecated hx-on- syntax
+		{
+			name: "valid hx-on- click",
+			html: `<button hx-on-click="alert('clicked')">Click</button>`,
+		},
+		// Invalid cases
+		{
+			name:       "unknown htmx event",
+			html:       `<div hx-get="/api" hx-on:htmx:unknownEvent="handle()">content</div>`,
+			wantRule:   rules.RuleHTMXAttributes,
+			wantSubstr: "unknown htmx event",
+			severity:   rules.Warning,
+		},
+		{
+			name:       "unknown event",
+			html:       `<div hx-on:customEvent="handle()">content</div>`,
+			wantRule:   rules.RuleHTMXAttributes,
+			wantSubstr: "unknown event",
+			severity:   rules.Warning,
+		},
+	}
+
+	cfg := linter.DefaultConfig()
+	cfg.Frameworks.HTMX = true
+	cfg.Frameworks.HTMXVersion = "2"
+	l := linter.New(cfg)
+
+	runHTMXTests(t, l, tests)
+}
+
+func TestLintContent_HTMXOnEventV4(t *testing.T) {
+	tests := []htmxTestCase{
+		// Valid htmx v4 events
+		{
+			name: "valid htmx:after:request",
+			html: `<div hx-get="/api" hx-on:htmx:after:request="done()">content</div>`,
+		},
+		{
+			name: "valid htmx:before:swap",
+			html: `<div hx-get="/api" hx-on:htmx:before:swap="prep()">content</div>`,
+		},
+		{
+			name: "valid htmx:error",
+			html: `<div hx-get="/api" hx-on:htmx:error="handleError()">content</div>`,
+		},
+		{
+			name: "valid htmx:finally:request",
+			html: `<div hx-get="/api" hx-on:htmx:finally:request="cleanup()">content</div>`,
+		},
+		{
+			name: "valid htmx:load (standalone)",
+			html: `<div hx-get="/api" hx-on:htmx:load="loaded()">content</div>`,
+		},
+		// v4 shorthand syntax (hx-on::event)
+		{
+			name: "valid shorthand htmx:after:request",
+			html: `<div hx-get="/api" hx-on::after:request="done()">content</div>`,
+		},
+		// Invalid cases
+		{
+			name:       "unknown v4 phase",
+			html:       `<div hx-get="/api" hx-on:htmx:unknown:request="handle()">content</div>`,
+			wantRule:   rules.RuleHTMXAttributes,
+			wantSubstr: "unknown htmx 4 event phase",
+			severity:   rules.Warning,
+		},
+		{
+			name:       "unknown v4 action",
+			html:       `<div hx-get="/api" hx-on:htmx:after:unknownAction="handle()">content</div>`,
+			wantRule:   rules.RuleHTMXAttributes,
+			wantSubstr: "unknown htmx 4 event action",
+			severity:   rules.Warning,
+		},
+	}
+
+	cfg := linter.DefaultConfig()
+	cfg.Frameworks.HTMX = true
+	cfg.Frameworks.HTMXVersion = "4"
+	l := linter.New(cfg)
+
+	runHTMXTests(t, l, tests)
+}
