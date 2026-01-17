@@ -44,6 +44,55 @@ go-html-validate --list-rules
 | `--disable RULE` | Disable specific rule (repeatable) |
 | `--list-rules` | List all available rules |
 | `-h, --help` | Show help |
+| `--config PATH` | Use specific config file |
+| `--no-config` | Disable config file loading |
+| `--print-config` | Print resolved configuration |
+
+## Configuration
+
+This tool uses the same configuration format as [html-validate](https://html-validate.org/usage/index.html).
+
+### Config File
+
+Create `.htmlvalidate.json` in your project root:
+
+```json
+{
+  "extends": ["html-validate:recommended"],
+  "rules": {
+    "no-inline-style": "warn",
+    "prefer-tbody": "off"
+  }
+}
+```
+
+The linter searches for `.htmlvalidate.json` in the target directory and parent directories.
+
+### Rule Severity
+
+- `"error"` or `2` - Error (fails CI)
+- `"warn"` or `1` - Warning
+- `"off"` or `0` - Disabled
+
+### Built-in Presets
+
+| Preset | Description |
+|--------|-------------|
+| `html-validate:recommended` | All rules enabled (default) |
+| `html-validate:standard` | Core rules, fewer style preferences |
+| `html-validate:a11y` | Accessibility-focused rules only |
+
+### Ignore File
+
+Create `.htmlvalidateignore` for gitignore-style patterns:
+
+```
+node_modules/
+vendor/
+**/*.generated.html
+```
+
+For full configuration options, see the [html-validate configuration documentation](https://html-validate.org/usage/index.html).
 
 ## Supported File Types
 

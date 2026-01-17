@@ -176,17 +176,75 @@ func (l *Linter) Run(paths []string) (int, error) {
 
 func (l *Linter) shouldIgnore(path string) bool {
 	for _, pattern := range l.config.IgnorePatterns {
-		matched, _ := filepath.Match(pattern, filepath.Base(path))
-		if matched {
-			return true
-		}
-		// Also check full path
-		matched, _ = filepath.Match(pattern, path)
-		if matched {
+		if matchIgnorePattern(path, pattern) {
 			return true
 		}
 	}
 	return false
+}
+
+// matchIgnorePattern checks if a path matches a gitignore-style pattern.
+func matchIgnorePattern(path, pattern string) bool {
+	// Handle directory patterns (ending with /)
+	if strings.HasSuffix(pattern, "/") {
+		dir := strings.TrimSuffix(pattern, "/")
+		if strings.Contains(path, "/"+dir+"/") ||
+			strings.HasPrefix(path, dir+"/") ||
+			path == dir {
+			return true
+		}
+		return false
+	}
+
+	// Handle ** recursive patterns
+	if strings.Contains(pattern, "**") {
+		return matchDoublestar(path, pattern)
+	}
+
+	// Simple glob matching against basename
+	if matched, _ := filepath.Match(pattern, filepath.Base(path)); matched {
+		return true
+	}
+
+	// Try matching full path
+	if matched, _ := filepath.Match(pattern, path); matched {
+		return true
+	}
+
+	return false
+}
+
+// matchDoublestar handles ** patterns.
+func matchDoublestar(path, pattern string) bool {
+	parts := strings.Split(pattern, "**")
+	if len(parts) != 2 {
+		return false
+	}
+
+	prefix := strings.TrimSuffix(parts[0], "/")
+	suffix := strings.TrimPrefix(parts[1], "/")
+
+	// **/*.html - match any path ending with suffix
+	if prefix == "" {
+		if matched, _ := filepath.Match(suffix, filepath.Base(path)); matched {
+			return true
+		}
+		if suffix != "" && strings.HasSuffix(path, suffix) {
+			return true
+		}
+		return false
+	}
+
+	// prefix/**/suffix - match prefix at start, suffix at end
+	if suffix != "" {
+		hasPrefix := strings.HasPrefix(path, prefix+"/") || strings.HasPrefix(path, prefix)
+		hasSuffix := strings.HasSuffix(path, suffix) ||
+			func() bool { m, _ := filepath.Match(suffix, filepath.Base(path)); return m }()
+		return hasPrefix && hasSuffix
+	}
+
+	// prefix/** - match anything under prefix
+	return strings.HasPrefix(path, prefix+"/") || path == prefix
 }
 
 func isHTMLFile(path string) bool {

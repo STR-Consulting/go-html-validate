@@ -18,6 +18,8 @@ type Config struct {
 	MinSeverity rules.Severity
 	// IgnorePatterns are glob patterns for files to skip
 	IgnorePatterns []string
+	// ConfigPath is the path to the loaded config file (for debugging)
+	ConfigPath string
 }
 
 // DefaultConfig returns a configuration with all rules enabled.
