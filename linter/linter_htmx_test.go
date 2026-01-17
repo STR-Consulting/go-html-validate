@@ -627,3 +627,83 @@ func TestLintContent_HTMXSubmitButtonInForm(t *testing.T) {
 
 	runHTMXTests(t, l, tests)
 }
+
+func TestLintContent_HTMXValsHeaders(t *testing.T) {
+	tests := []htmxTestCase{
+		// Valid hx-vals cases
+		{
+			name: "valid hx-vals JSON object",
+			html: `<div hx-post="/api" hx-vals='{"key": "value"}'>content</div>`,
+		},
+		{
+			name: "valid hx-vals with multiple keys",
+			html: `<div hx-post="/api" hx-vals='{"name": "John", "age": 30}'>content</div>`,
+		},
+		{
+			name: "valid hx-vals empty object",
+			html: `<div hx-post="/api" hx-vals="{}">content</div>`,
+		},
+		{
+			name: "valid hx-vals with js: prefix",
+			html: `<div hx-post="/api" hx-vals="js:{name: getName()}">content</div>`,
+		},
+		{
+			name: "valid hx-vals with javascript: prefix",
+			html: `<div hx-post="/api" hx-vals="javascript:{name: getName()}">content</div>`,
+		},
+		{
+			name: "valid hx-vals with template expression",
+			html: `<div hx-post="/api" hx-vals='{"id": {{ .ID }}}'>content</div>`,
+		},
+		{
+			name: "empty hx-vals",
+			html: `<div hx-post="/api" hx-vals="">content</div>`,
+		},
+		// Valid hx-headers cases
+		{
+			name: "valid hx-headers JSON object",
+			html: `<div hx-post="/api" hx-headers='{"X-Custom": "value"}'>content</div>`,
+		},
+		{
+			name: "valid hx-headers with auth",
+			html: `<div hx-post="/api" hx-headers='{"Authorization": "Bearer token"}'>content</div>`,
+		},
+		// Invalid hx-vals cases
+		{
+			name:       "invalid hx-vals missing quotes",
+			html:       `<div hx-post="/api" hx-vals='{key: "value"}'>content</div>`,
+			wantRule:   rules.RuleHTMXAttributes,
+			wantSubstr: "invalid JSON",
+			severity:   rules.Error,
+		},
+		{
+			name:       "invalid hx-vals trailing comma",
+			html:       `<div hx-post="/api" hx-vals='{"key": "value",}'>content</div>`,
+			wantRule:   rules.RuleHTMXAttributes,
+			wantSubstr: "invalid JSON",
+			severity:   rules.Error,
+		},
+		{
+			name:       "invalid hx-vals broken JSON",
+			html:       `<div hx-post="/api" hx-vals='{"key":'>content</div>`,
+			wantRule:   rules.RuleHTMXAttributes,
+			wantSubstr: "invalid JSON",
+			severity:   rules.Error,
+		},
+		// Invalid hx-headers cases
+		{
+			name:       "invalid hx-headers syntax",
+			html:       `<div hx-post="/api" hx-headers='{X-Custom: value}'>content</div>`,
+			wantRule:   rules.RuleHTMXAttributes,
+			wantSubstr: "invalid JSON",
+			severity:   rules.Error,
+		},
+	}
+
+	cfg := linter.DefaultConfig()
+	cfg.Frameworks.HTMX = true
+	cfg.Frameworks.HTMXVersion = "2"
+	l := linter.New(cfg)
+
+	runHTMXTests(t, l, tests)
+}

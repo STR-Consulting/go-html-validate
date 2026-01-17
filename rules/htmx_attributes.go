@@ -1,7 +1,10 @@
 package rules
 
 import (
+	"encoding/json"
+	"errors"
 	"regexp"
+	"strconv"
 	"strings"
 
 	"github.com/STR-Consulting/go-html-validate/parser"
@@ -217,6 +220,8 @@ func (r *HTMXAttributes) Check(doc *parser.Document) []Result {
 				validationResults = r.validateTarget(doc.Filename, n, attr.Val)
 			case strings.HasPrefix(attrName, "hx-on:") || strings.HasPrefix(attrName, "hx-on-"):
 				validationResults = r.validateHxOn(doc.Filename, n, attr.Key)
+			case attrName == "hx-vals" || attrName == "hx-headers":
+				validationResults = r.validateJSON(doc.Filename, n, attrName, attr.Val)
 			}
 
 			results = append(results, validationResults...)
@@ -835,4 +840,56 @@ func (r *HTMXAttributes) isInsideForm(n *parser.Node) bool {
 		parent = parent.Parent
 	}
 	return false
+}
+
+// validateJSON checks hx-vals and hx-headers attribute values for valid JSON syntax.
+func (r *HTMXAttributes) validateJSON(filename string, n *parser.Node, attrName, value string) []Result {
+	if value == "" {
+		return nil // Empty is valid
+	}
+
+	// Skip template expressions (both raw and preprocessed)
+	if strings.Contains(value, "{{") || strings.Contains(value, "TMPL") {
+		return nil
+	}
+
+	// hx-vals supports "js:" prefix for JavaScript expressions
+	if attrName == "hx-vals" && strings.HasPrefix(value, "js:") {
+		return nil // JavaScript expression, can't validate
+	}
+
+	// hx-vals also supports "javascript:" prefix (htmx 2)
+	if attrName == "hx-vals" && strings.HasPrefix(value, "javascript:") {
+		return nil // JavaScript expression, can't validate
+	}
+
+	// Try to parse as JSON
+	var js json.RawMessage
+	if err := json.Unmarshal([]byte(value), &js); err != nil {
+		// Provide a helpful error message
+		return []Result{{
+			Rule:     RuleHTMXAttributes,
+			Message:  attrName + " contains invalid JSON: " + simplifyJSONError(err),
+			Filename: filename,
+			Line:     n.Line,
+			Col:      n.Col,
+			Severity: Error,
+		}}
+	}
+
+	return nil
+}
+
+// simplifyJSONError extracts a user-friendly message from a JSON parse error.
+func simplifyJSONError(err error) string {
+	// json.SyntaxError has Offset field, extract position info
+	var syntaxErr *json.SyntaxError
+	if errors.As(err, &syntaxErr) {
+		return "syntax error at position " + strconv.FormatInt(syntaxErr.Offset, 10)
+	}
+
+	// Clean up common error messages
+	msg := err.Error()
+	msg = strings.TrimPrefix(msg, "invalid character ")
+	return msg
 }
