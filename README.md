@@ -1,4 +1,4 @@
-# go-html-validate
+# htmlint
 
 Fast HTML linter written in Go with special handling for Go templates. Validates HTML for accessibility, best practices, and common mistakes.
 
@@ -14,23 +14,23 @@ go install github.com/STR-Consulting/go-html-validate@latest
 
 ```bash
 # Lint files or directories
-go-html-validate web/
-go-html-validate index.html about.html
+htmlint web/
+htmlint index.html about.html
 
 # Errors only (no warnings)
-go-html-validate -q web/
+htmlint -q web/
 
 # JSON output
-go-html-validate --format=json web/
+htmlint --format=json web/
 
 # Disable specific rules
-go-html-validate --disable=prefer-aria --disable=no-inline-style web/
+htmlint --disable=prefer-aria --disable=no-inline-style web/
 
 # Ignore files by pattern
-go-html-validate --ignore="*_test.html" web/
+htmlint --ignore="*_test.html" web/
 
 # List available rules
-go-html-validate --list-rules
+htmlint --list-rules
 ```
 
 ## Options

@@ -28,3 +28,4 @@ coverage.txt
 coverage.html
 
 ./claude/settings.local.json
+.beans.clickup.yml

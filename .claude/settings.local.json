@@ -5,7 +5,13 @@
       "WebFetch(domain:github.com)",
       "Bash(/Users/jason/Developer/pacer/go-html-validate/go-html-validate:*)",
       "Bash(chmod:*)",
-      "Bash(NEW_VERSION=v0.3.0 /Users/jason/Developer/pacer/go-html-validate/.claude/skills/commit/commit.sh:*)"
+      "Bash(NEW_VERSION=v0.3.0 /Users/jason/Developer/pacer/go-html-validate/.claude/skills/commit/commit.sh:*)",
+      "Bash(beanup sync:*)",
+      "Bash(beans create:*)",
+      "Bash(goreleaser check:*)",
+      "Bash(beans update:*)",
+      "Bash(gh release list:*)",
+      "Bash(gh run list:*)"
     ]
   }
 }

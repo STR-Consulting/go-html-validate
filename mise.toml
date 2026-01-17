@@ -5,5 +5,6 @@
 [tools]
 go = "1.25"
 "go:github.com/hmans/beans" = "latest"
-"go:github.com/STR-Consulting/bean-me-up/cmd/beanup" = "latest"
-"go:github.com/golangci/golangci-lint/v2/cmd/golangci-lint" = "2.1"
+"github:STR-Consulting/bean-me-up" = "latest"
+"go:github.com/golangci/golangci-lint/v2/cmd/golangci-lint" = "2.8"
+"github:STR-Consulting/go-html-validate" = "latest"

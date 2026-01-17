@@ -28,13 +28,9 @@ DESCRIPTION="${2:-}"
 if [ -n "$DESCRIPTION" ]; then
     COMMIT_MSG="$SUBJECT
 
-$DESCRIPTION
-
-Co-Authored-By: Claude <noreply@anthropic.com>"
+$DESCRIPTION"
 else
-    COMMIT_MSG="$SUBJECT
-
-Co-Authored-By: Claude <noreply@anthropic.com>"
+    COMMIT_MSG="$SUBJECT"
 fi
 
 # Create commit
@@ -50,15 +46,15 @@ if [ -n "$CURRENT_TAG" ]; then
     echo "==> Current version: $CURRENT_TAG"
     echo "==> Checking if version bump is needed..."
 
-    # If NEW_VERSION is set by caller, create tag and release
+    # If NEW_VERSION is set by caller, create and push tag
+    # GoReleaser workflow will create the GitHub release automatically
     if [ -n "$NEW_VERSION" ]; then
         echo "==> Creating tag $NEW_VERSION..."
         git tag -a "$NEW_VERSION" -m "Release $NEW_VERSION"
 
-        echo "==> Pushing tag and creating GitHub release..."
+        echo "==> Pushing tag (GoReleaser will create release)..."
         git push origin "$NEW_VERSION"
-        gh release create "$NEW_VERSION" --title "$NEW_VERSION" --generate-notes
-        echo "==> Created GitHub release $NEW_VERSION"
+        echo "==> Tag $NEW_VERSION pushed, GoReleaser workflow will create release"
     else
         echo "==> No NEW_VERSION set, skipping tag"
     fi
@@ -69,7 +65,7 @@ fi
 # Sync to ClickUp
 echo ""
 echo "==> Syncing beans to ClickUp..."
-beanup || echo "Warning: beanup failed or not available"
+beanup sync || echo "Warning: beanup sync failed or not available"
 
 echo ""
 echo "==> Done!"

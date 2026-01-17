@@ -38,6 +38,9 @@ import (
 	"github.com/STR-Consulting/go-html-validate/rules"
 )
 
+// version is set by ldflags during GoReleaser build.
+var version = ""
+
 type stringSlice []string
 
 func (s *stringSlice) String() string { return strings.Join(*s, ",") }
@@ -306,6 +309,9 @@ func printRules() {
 }
 
 func getVersion() string {
+	if version != "" {
+		return version
+	}
 	if info, ok := debug.ReadBuildInfo(); ok && info.Main.Version != "" {
 		return info.Main.Version
 	}
