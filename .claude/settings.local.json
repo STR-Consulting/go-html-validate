@@ -11,7 +11,12 @@
       "Bash(goreleaser check:*)",
       "Bash(beans update:*)",
       "Bash(gh release list:*)",
-      "Bash(gh run list:*)"
+      "Bash(gh run list:*)",
+      "Bash(gh workflow list:*)",
+      "Bash(gh run watch:*)",
+      "Bash(gh release view:*)",
+      "Bash(htmlint --version:*)",
+      "Bash(NEW_VERSION=v0.4.1 .claude/skills/commit/commit.sh:*)"
     ]
   }
 }
