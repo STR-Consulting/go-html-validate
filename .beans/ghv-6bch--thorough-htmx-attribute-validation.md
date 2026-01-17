@@ -30,7 +30,7 @@ Current state (`rules/htmx.go`, `rules/input_attributes.go`):
 ### Phase 2: Pattern matching and semantic checks
 
 - [x] Validate hx-on:* event names match known htmx events (e.g., `hx-on:htmx:after-request` vs typos)
-- [ ] Warn on hx-post/hx-get on submit buttons instead of parent form (common mistake)
+- [x] Warn on hx-post/hx-get on submit buttons instead of parent form (common mistake)
 - [ ] Validate hx-vals/hx-headers JSON syntax
 - [ ] Check hx-include CSS selector validity
 - [ ] Validate timing values in modifiers (e.g., `delay:1s`, `throttle:500ms` - valid time formats)

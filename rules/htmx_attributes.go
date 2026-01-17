@@ -222,6 +222,11 @@ func (r *HTMXAttributes) Check(doc *parser.Document) []Result {
 			results = append(results, validationResults...)
 		}
 
+		// Check for hx-post/hx-get on submit buttons inside forms
+		if submitButtonResult := r.checkSubmitButtonInForm(doc.Filename, n); submitButtonResult != nil {
+			results = append(results, *submitButtonResult)
+		}
+
 		return true
 	})
 
@@ -753,4 +758,81 @@ func (r *HTMXAttributes) validateHTMXv4Event(filename string, n *parser.Node, ev
 	}
 
 	return nil
+}
+
+// checkSubmitButtonInForm warns when hx-post/hx-get is used on a submit button inside a form.
+// This is a common mistake that bypasses form validation.
+func (r *HTMXAttributes) checkSubmitButtonInForm(filename string, n *parser.Node) *Result {
+	// Check if this is a submit button
+	nodeName := strings.ToLower(n.Data)
+	if !r.isSubmitButton(n, nodeName) {
+		return nil
+	}
+
+	// Check if it has an htmx request attribute
+	requestAttr := ""
+	for _, attr := range n.Attr {
+		attrName := strings.ToLower(attr.Key)
+		switch attrName {
+		case "hx-get", "hx-post", "hx-put", "hx-patch", "hx-delete":
+			requestAttr = attrName
+		}
+	}
+
+	if requestAttr == "" {
+		return nil
+	}
+
+	// Check if it's inside a form
+	if !r.isInsideForm(n) {
+		return nil
+	}
+
+	return &Result{
+		Rule:     RuleHTMXAttributes,
+		Message:  requestAttr + " on submit button inside form may bypass form validation; consider moving to the form element",
+		Filename: filename,
+		Line:     n.Line,
+		Col:      n.Col,
+		Severity: Warning,
+	}
+}
+
+// isSubmitButton checks if the node is a submit button.
+func (r *HTMXAttributes) isSubmitButton(n *parser.Node, nodeName string) bool {
+	// <button> without type or with type="submit"
+	if nodeName == "button" {
+		buttonType := ""
+		for _, attr := range n.Attr {
+			if strings.ToLower(attr.Key) == "type" {
+				buttonType = strings.ToLower(attr.Val)
+				break
+			}
+		}
+		// Default button type in a form is "submit"
+		return buttonType == "" || buttonType == "submit"
+	}
+
+	// <input type="submit">
+	if nodeName == "input" {
+		for _, attr := range n.Attr {
+			if strings.ToLower(attr.Key) == "type" && strings.ToLower(attr.Val) == "submit" {
+				return true
+			}
+		}
+	}
+
+	return false
+}
+
+// isInsideForm checks if the node is inside a form element.
+func (r *HTMXAttributes) isInsideForm(n *parser.Node) bool {
+	parent := n.Parent
+	for parent != nil {
+		if parent.Type == html.ElementNode && strings.ToLower(parent.Data) == "form" {
+			return true
+		}
+		parent = parent.Parent
+	}
+	return false
 }

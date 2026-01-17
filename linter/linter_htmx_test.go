@@ -558,3 +558,72 @@ func TestLintContent_HTMXOnEventV4(t *testing.T) {
 
 	runHTMXTests(t, l, tests)
 }
+
+func TestLintContent_HTMXSubmitButtonInForm(t *testing.T) {
+	tests := []htmxTestCase{
+		// Valid cases - no warning needed
+		{
+			name: "hx-post on form element",
+			html: `<form hx-post="/api"><button type="submit">Submit</button></form>`,
+		},
+		{
+			name: "hx-post on button outside form",
+			html: `<button hx-post="/api">Submit</button>`,
+		},
+		{
+			name: "hx-post on button type=button inside form",
+			html: `<form><button type="button" hx-post="/api">Click</button></form>`,
+		},
+		{
+			name: "hx-post on div inside form",
+			html: `<form><div hx-post="/api">Click</div></form>`,
+		},
+		{
+			name: "submit button without htmx inside form",
+			html: `<form action="/api"><button type="submit">Submit</button></form>`,
+		},
+		// Warning cases
+		{
+			name:       "hx-post on submit button inside form",
+			html:       `<form><button type="submit" hx-post="/api">Submit</button></form>`,
+			wantRule:   rules.RuleHTMXAttributes,
+			wantSubstr: "bypass form validation",
+			severity:   rules.Warning,
+		},
+		{
+			name:       "hx-post on default button inside form",
+			html:       `<form><button hx-post="/api">Submit</button></form>`,
+			wantRule:   rules.RuleHTMXAttributes,
+			wantSubstr: "bypass form validation",
+			severity:   rules.Warning,
+		},
+		{
+			name:       "hx-get on submit button inside form",
+			html:       `<form><button type="submit" hx-get="/api">Submit</button></form>`,
+			wantRule:   rules.RuleHTMXAttributes,
+			wantSubstr: "bypass form validation",
+			severity:   rules.Warning,
+		},
+		{
+			name:       "hx-post on input submit inside form",
+			html:       `<form><input type="submit" hx-post="/api" value="Submit"></form>`,
+			wantRule:   rules.RuleHTMXAttributes,
+			wantSubstr: "bypass form validation",
+			severity:   rules.Warning,
+		},
+		{
+			name:       "hx-delete on submit button inside nested form",
+			html:       `<div><form><button type="submit" hx-delete="/api">Delete</button></form></div>`,
+			wantRule:   rules.RuleHTMXAttributes,
+			wantSubstr: "bypass form validation",
+			severity:   rules.Warning,
+		},
+	}
+
+	cfg := linter.DefaultConfig()
+	cfg.Frameworks.HTMX = true
+	cfg.Frameworks.HTMXVersion = "2"
+	l := linter.New(cfg)
+
+	runHTMXTests(t, l, tests)
+}
