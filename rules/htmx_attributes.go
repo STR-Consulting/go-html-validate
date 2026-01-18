@@ -209,22 +209,38 @@ func (r *HTMXAttributes) Check(doc *parser.Document) []Result {
 				continue
 			}
 
+			// Handle :inherited suffix (htmx 4 only)
+			baseAttrName := attrName
+			if strings.HasSuffix(attrName, ":inherited") {
+				baseAttrName = strings.TrimSuffix(attrName, ":inherited")
+				if r.htmxVersion != "4" {
+					results = append(results, Result{
+						Rule:     RuleHTMXAttributes,
+						Message:  ":inherited suffix is only available in htmx 4",
+						Filename: doc.Filename,
+						Line:     n.Line,
+						Col:      n.Col,
+						Severity: Warning,
+					})
+				}
+			}
+
 			var validationResults []Result
 
 			switch {
-			case attrName == "hx-swap":
+			case baseAttrName == "hx-swap":
 				validationResults = r.validateSwap(doc.Filename, n, attr.Val)
-			case attrName == "hx-trigger":
+			case baseAttrName == "hx-trigger":
 				validationResults = r.validateTrigger(doc.Filename, n, attr.Val)
-			case attrName == "hx-target":
+			case baseAttrName == "hx-target":
 				validationResults = r.validateTarget(doc.Filename, n, attr.Val)
-			case strings.HasPrefix(attrName, "hx-on:") || strings.HasPrefix(attrName, "hx-on-"):
+			case strings.HasPrefix(baseAttrName, "hx-on:") || strings.HasPrefix(baseAttrName, "hx-on-"):
 				validationResults = r.validateHxOn(doc.Filename, n, attr.Key)
-			case attrName == "hx-vals" || attrName == "hx-headers":
-				validationResults = r.validateJSON(doc.Filename, n, attrName, attr.Val)
-			case attrName == "hx-include":
+			case baseAttrName == "hx-vals" || baseAttrName == "hx-headers":
+				validationResults = r.validateJSON(doc.Filename, n, baseAttrName, attr.Val)
+			case baseAttrName == "hx-include":
 				validationResults = r.validateInclude(doc.Filename, n, attr.Val)
-			case strings.HasPrefix(attrName, "hx-status:") || strings.HasPrefix(attrName, "hx-status-"):
+			case strings.HasPrefix(baseAttrName, "hx-status:") || strings.HasPrefix(baseAttrName, "hx-status-"):
 				validationResults = r.validateHxStatus(doc.Filename, n, attr.Key)
 			}
 

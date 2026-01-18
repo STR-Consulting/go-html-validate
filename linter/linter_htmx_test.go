@@ -919,3 +919,58 @@ func TestLintContent_HTMXStatusV2Warning(t *testing.T) {
 		t.Errorf("expected warning about htmx 4 only, got %v", results)
 	}
 }
+
+func TestLintContent_HTMXInheritedV4(t *testing.T) {
+	tests := []htmxTestCase{
+		// Valid :inherited suffix in htmx 4
+		{
+			name: "valid hx-boost:inherited",
+			html: `<div hx-boost:inherited="true">content</div>`,
+		},
+		{
+			name: "valid hx-swap:inherited",
+			html: `<div hx-get="/api" hx-swap:inherited>content</div>`,
+		},
+		{
+			name: "valid hx-target:inherited",
+			html: `<div hx-get="/api" hx-target:inherited>content</div>`,
+		},
+		{
+			name: "hx-swap:inherited still validates value",
+			html: `<div hx-get="/api" hx-swap:inherited="innerHTML">content</div>`,
+		},
+	}
+
+	cfg := linter.DefaultConfig()
+	cfg.Frameworks.HTMX = true
+	cfg.Frameworks.HTMXVersion = "4"
+	l := linter.New(cfg)
+
+	runHTMXTests(t, l, tests)
+}
+
+func TestLintContent_HTMXInheritedV2Warning(t *testing.T) {
+	// :inherited suffix should warn when using htmx v2
+	html := `<div hx-boost:inherited="true">content</div>`
+
+	cfg := linter.DefaultConfig()
+	cfg.Frameworks.HTMX = true
+	cfg.Frameworks.HTMXVersion = "2"
+	l := linter.New(cfg)
+
+	results, err := l.LintContent("test.html", []byte(html))
+	if err != nil {
+		t.Fatalf("LintContent() error = %v", err)
+	}
+
+	found := false
+	for _, r := range results {
+		if r.Rule == rules.RuleHTMXAttributes && strings.Contains(r.Message, ":inherited suffix is only available in htmx 4") {
+			found = true
+			break
+		}
+	}
+	if !found {
+		t.Errorf("expected warning about :inherited being htmx 4 only, got %v", results)
+	}
+}

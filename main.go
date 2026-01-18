@@ -210,8 +210,9 @@ func resolveExtendsFromPath(cfg *config.FileConfig, path string) (*config.FileCo
 	// Use config package's Resolve by writing to temp and loading
 	// This is a simplified approach - we merge presets directly
 	result := &config.FileConfig{
-		Root:  cfg.Root,
-		Rules: make(map[string]config.RuleConfig),
+		Root:       cfg.Root,
+		Frameworks: cfg.Frameworks,
+		Rules:      make(map[string]config.RuleConfig),
 	}
 
 	// Apply extends

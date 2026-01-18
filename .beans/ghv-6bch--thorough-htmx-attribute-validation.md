@@ -1,11 +1,11 @@
 ---
 # ghv-6bch
 title: Thorough htmx attribute validation
-status: in-progress
+status: completed
 type: feature
 priority: normal
 created_at: 2026-01-17T23:31:34Z
-updated_at: 2026-01-17T23:39:11Z
+updated_at: 2026-01-18T00:11:08Z
 ---
 
 Add comprehensive htmx attribute validation beyond the current basic attribute recognition. Currently htmx validation only checks if attributes exist and are version-appropriate on `<input>` elements. This feature would add semantic validation of attribute values and patterns.
@@ -38,8 +38,8 @@ Current state (`rules/htmx.go`, `rules/input_attributes.go`):
 ### Phase 3: htmx 4 specific
 
 - [x] Validate hx-status:* patterns for valid HTTP status codes
-- [ ] Check new htmx 4 event naming convention compliance
-- [ ] Validate :inherited suffix usage
+- [x] Check new htmx 4 event naming convention compliance *(validates htmx:phase:action format)*
+- [x] Validate :inherited suffix usage *(warns in htmx 2, validates base attr in htmx 4)*
 
 ## Research Notes
 
