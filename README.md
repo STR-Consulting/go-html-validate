@@ -95,7 +95,7 @@ Enable htmx attribute validation:
 | `htmx` | `true`/`false` | Enable htmx attribute support (default: `false`) |
 | `htmx-version` | `"2"`, `"4"` | htmx version to validate against (default: `"2"`) |
 
-When `htmx` is enabled, htmx attributes are recognized as valid and won't trigger `attribute-misuse` errors.
+When `htmx` is enabled, htmx attributes are recognized as valid and won't trigger `attribute-misuse` errors. Additionally, the `htmx-attributes` rule will validate htmx attribute values.
 
 **Supported attributes (htmx 2.x):**
 - Request: `hx-get`, `hx-post`, `hx-put`, `hx-patch`, `hx-delete`
@@ -114,6 +114,28 @@ When `htmx` is enabled, htmx attributes are recognized as valid and won't trigge
 
 **Deprecated in htmx 4** (warn when `htmx-version` is `"4"`):
 - `hx-disabled-elt`, `hx-disinherit`, `hx-history-elt`, `hx-request`, `hx-vars`
+
+#### Go Templates
+
+Go template syntax is validated automatically when linting `.gohtml`, `.tmpl`, or any file containing `{{` template delimiters. The following template-specific rules are enabled by default:
+
+| Rule | Description |
+|------|-------------|
+| `template-syntax-valid` | Validates balanced `{{` and `}}` braces, matched control structures (`if`/`end`, `range`/`end`, etc.), and proper trim marker syntax (`{{-` and `-}}`) |
+| `template-whitespace-trim` | Suggests using trailing trim markers (`-}}`) on control flow actions alone on a line to prevent unwanted blank lines in rendered output |
+
+These rules examine the raw template content before preprocessing, allowing them to catch syntax errors that would otherwise cause parser failures.
+
+To disable template rules:
+
+```json
+{
+  "rules": {
+    "template-syntax-valid": "off",
+    "template-whitespace-trim": "off"
+  }
+}
+```
 
 ### Built-in Presets
 
@@ -217,6 +239,13 @@ For full configuration options, see the [html-validate configuration documentati
 - `no-style-tag` - Avoid style tags
 - `require-csp-nonce` - CSP nonce on scripts/styles
 - `require-sri` - Subresource integrity
+
+### htmx (requires `frameworks.htmx: true`)
+- `htmx-attributes` - Validates htmx attribute values (hx-swap, hx-trigger, hx-target, hx-on:*, hx-vals, hx-headers, hx-include, hx-status:*)
+
+### Go Template
+- `template-syntax-valid` - Validates Go template syntax (balanced braces, control structures, trim markers)
+- `template-whitespace-trim` - Suggests trim markers to prevent unwanted whitespace
 
 ## License
 
