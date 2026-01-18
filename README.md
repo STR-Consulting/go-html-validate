@@ -4,6 +4,9 @@ Fast HTML linter written in Go with special handling for Go templates. Validates
 
 Implements rules from [html-validate.org](https://html-validate.org).
 
+> [!NOTE]
+> 🤖 This project was initially set up with a carefully guided LLM (Claude Opus 4.5)
+
 ## Installation
 
 ```bash
