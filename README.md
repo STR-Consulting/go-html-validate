@@ -94,8 +94,22 @@ Enable htmx attribute validation:
 |--------|--------|-------------|
 | `htmx` | `true`/`false` | Enable htmx attribute support (default: `false`) |
 | `htmx-version` | `"2"`, `"4"` | htmx version to validate against (default: `"2"`) |
+| `htmx-custom-events` | `["event1", ...]` | Custom event names to allow in `hx-on:*` without warnings |
 
 When `htmx` is enabled, htmx attributes are recognized as valid and won't trigger `attribute-misuse` errors. Additionally, the `htmx-attributes` rule will validate htmx attribute values.
+
+**Custom events:** If you use custom events (e.g., SSE-pushed events), `hx-on:myevent` will produce an "unknown event" warning by default. Add event names to `htmx-custom-events` to suppress these warnings:
+
+```json
+{
+  "frameworks": {
+    "htmx": true,
+    "htmx-custom-events": ["count", "notification", "status"]
+  }
+}
+```
+
+Event names are matched case-insensitively.
 
 **Supported attributes (htmx 2.x):**
 - Request: `hx-get`, `hx-post`, `hx-put`, `hx-patch`, `hx-delete`
