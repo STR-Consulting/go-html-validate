@@ -119,6 +119,12 @@
           "enum": ["2", "4"],
           "default": "2",
           "description": "htmx version to validate against"
+        },
+        "htmx-custom-events": {
+          "type": "array",
+          "items": { "type": "string" },
+          "default": [],
+          "description": "Custom event names to allow in hx-on:* without unknown event warnings (e.g., SSE-pushed events)"
         }
       },
       "additionalProperties": false
