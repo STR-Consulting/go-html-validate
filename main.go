@@ -32,10 +32,10 @@ import (
 	"runtime/debug"
 	"strings"
 
-	"github.com/STR-Consulting/go-html-validate/config"
-	"github.com/STR-Consulting/go-html-validate/linter"
-	"github.com/STR-Consulting/go-html-validate/reporter"
-	"github.com/STR-Consulting/go-html-validate/rules"
+	"github.com/toba/go-html-validate/config"
+	"github.com/toba/go-html-validate/linter"
+	"github.com/toba/go-html-validate/reporter"
+	"github.com/toba/go-html-validate/rules"
 )
 
 // version is set by ldflags during GoReleaser build.

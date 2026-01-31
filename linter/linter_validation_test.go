@@ -4,8 +4,8 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/STR-Consulting/go-html-validate/linter"
-	"github.com/STR-Consulting/go-html-validate/rules"
+	"github.com/toba/go-html-validate/linter"
+	"github.com/toba/go-html-validate/rules"
 )
 
 func TestLintContent_ValidID(t *testing.T) {
@@ -563,4 +563,142 @@ func TestLintContent_InputAttributes_HTMX(t *testing.T) {
 // messageContains checks if message contains the expected substring.
 func messageContains(message, expected string) bool {
 	return strings.Contains(message, expected)
+}
+
+func TestLintContent_ValidFor(t *testing.T) {
+	tests := []struct {
+		name     string
+		html     string
+		wantRule string
+	}{
+		{
+			name: "label for references input",
+			html: `<label for="name">Name</label><input id="name">`,
+		},
+		{
+			name: "label for references textarea",
+			html: `<label for="bio">Bio</label><textarea id="bio"></textarea>`,
+		},
+		{
+			name: "label for references select",
+			html: `<label for="color">Color</label><select id="color"><option>Red</option></select>`,
+		},
+		{
+			name: "label for references button",
+			html: `<label for="btn">Action</label><button id="btn">Click</button>`,
+		},
+		{
+			name: "label for references output",
+			html: `<label for="result">Result</label><output id="result">42</output>`,
+		},
+		{
+			name: "label for references meter",
+			html: `<label for="fuel">Fuel</label><meter id="fuel" value="0.5">50%</meter>`,
+		},
+		{
+			name: "label for references progress",
+			html: `<label for="prog">Progress</label><progress id="prog" value="50" max="100">50%</progress>`,
+		},
+		{
+			name:     "label for references div",
+			html:     `<label for="foo">Name</label><div id="foo">text</div>`,
+			wantRule: rules.RuleValidFor,
+		},
+		{
+			name:     "label for references p",
+			html:     `<label for="foo">Name</label><p id="foo">text</p>`,
+			wantRule: rules.RuleValidFor,
+		},
+		{
+			name:     "label for references span",
+			html:     `<label for="foo">Name</label><span id="foo">text</span>`,
+			wantRule: rules.RuleValidFor,
+		},
+		{
+			name:     "label for references hidden input",
+			html:     `<label for="tok">Token</label><input type="hidden" id="tok">`,
+			wantRule: rules.RuleValidFor,
+		},
+		{
+			name: "label for references missing id (skip)",
+			html: `<label for="missing">Name</label>`,
+		},
+		{
+			name: "label without for (skip)",
+			html: `<label>Name <input></label>`,
+		},
+		{
+			name: "label for with template expression (skip)",
+			html: `<label for="TMPL">Name</label>`,
+		},
+	}
+
+	l := linter.New(nil)
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			results, err := l.LintContent("test.html", []byte(tt.html))
+			if err != nil {
+				t.Fatalf("LintContent() error = %v", err)
+			}
+			checkRule(t, results, rules.RuleValidFor, tt.wantRule)
+		})
+	}
+}
+
+func TestLintContent_UnrecognizedCharRef(t *testing.T) {
+	tests := []struct {
+		name     string
+		html     string
+		wantRule string
+	}{
+		{
+			name: "valid entity amp",
+			html: `<p>Tom &amp; Jerry</p>`,
+		},
+		{
+			name: "valid entity lt",
+			html: `<p>1 &lt; 2</p>`,
+		},
+		{
+			name: "valid entity copy",
+			html: `<p>&copy; 2024</p>`,
+		},
+		{
+			name: "valid entity aacute",
+			html: `<p>&aacute;</p>`,
+		},
+		{
+			name: "valid entity nbsp",
+			html: `<p>hello&nbsp;world</p>`,
+		},
+		{
+			name:     "invalid entity foobar",
+			html:     `<p>&foobar;</p>`,
+			wantRule: rules.RuleUnrecognizedCharRef,
+		},
+		{
+			name:     "invalid entity bloop",
+			html:     `<p>&bloop;</p>`,
+			wantRule: rules.RuleUnrecognizedCharRef,
+		},
+		{
+			name: "numeric decimal entity (skip)",
+			html: `<p>&#8212;</p>`,
+		},
+		{
+			name: "numeric hex entity (skip)",
+			html: `<p>&#x2014;</p>`,
+		},
+	}
+
+	l := linter.New(nil)
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			results, err := l.LintContent("test.html", []byte(tt.html))
+			if err != nil {
+				t.Fatalf("LintContent() error = %v", err)
+			}
+			checkRule(t, results, rules.RuleUnrecognizedCharRef, tt.wantRule)
+		})
+	}
 }

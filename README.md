@@ -4,13 +4,10 @@ Fast HTML linter written in Go with special handling for Go templates. Validates
 
 Implements rules from [html-validate.org](https://html-validate.org).
 
-> [!NOTE]
-> 🤖 This project was initially set up with a carefully guided LLM (Claude Opus 4.5)
-
 ## Installation
 
 ```bash
-go install github.com/STR-Consulting/go-html-validate@latest
+go install github.com/toba/go-html-validate@latest
 ```
 
 ## Usage
@@ -61,7 +58,7 @@ Create `.htmlvalidate.json` in your project root:
 
 ```json
 {
-  "$schema": "https://raw.githubusercontent.com/STR-Consulting/go-html-validate/main/schemas/htmlint.schema.json",
+  "$schema": "https://raw.githubusercontent.com/toba/go-html-validate/main/schemas/htmlint.schema.json",
   "extends": ["html-validate:recommended"],
   "rules": {
     "no-inline-style": "warn",

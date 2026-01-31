@@ -6,8 +6,8 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/STR-Consulting/go-html-validate/parser"
-	"github.com/STR-Consulting/go-html-validate/rules"
+	"github.com/toba/go-html-validate/parser"
+	"github.com/toba/go-html-validate/rules"
 )
 
 // Linter coordinates HTML template accessibility checking.

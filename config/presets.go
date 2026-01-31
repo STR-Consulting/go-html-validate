@@ -1,6 +1,6 @@
 package config
 
-import "github.com/STR-Consulting/go-html-validate/rules"
+import "github.com/toba/go-html-validate/rules"
 
 // Presets contains built-in configuration presets.
 var Presets = map[string]*FileConfig{

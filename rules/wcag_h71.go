@@ -1,7 +1,7 @@
 package rules
 
 import (
-	"github.com/STR-Consulting/go-html-validate/parser"
+	"github.com/toba/go-html-validate/parser"
 	"golang.org/x/net/html"
 )
 

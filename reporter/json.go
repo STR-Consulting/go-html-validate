@@ -5,7 +5,7 @@ import (
 	"io"
 	"os"
 
-	"github.com/STR-Consulting/go-html-validate/rules"
+	"github.com/toba/go-html-validate/rules"
 )
 
 // JSON outputs results in JSON format for CI integration.

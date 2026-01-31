@@ -1,7 +1,7 @@
 package rules
 
 import (
-	"github.com/STR-Consulting/go-html-validate/parser"
+	"github.com/toba/go-html-validate/parser"
 )
 
 // Severity indicates how serious a lint violation is.
@@ -104,6 +104,8 @@ const (
 	RuleClassPattern                = "class-pattern"
 	RuleIDPattern                   = "id-pattern"
 	RuleNamePattern                 = "name-pattern"
+	RuleValidFor                    = "valid-for"
+	RuleUnrecognizedCharRef         = "unrecognized-char-ref"
 	RuleHTMXAttributes              = "htmx-attributes"
 	RuleTemplateWhitespaceTrim      = "template-whitespace-trim"
 	RuleTemplateSyntaxValid         = "template-syntax-valid"
@@ -209,6 +211,8 @@ func NewRegistry() *Registry {
 			&ElementName{},
 			&ScriptType{},
 			&ValidAutocomplete{},
+			&ValidFor{},
+			&UnrecognizedCharRef{},
 			// Deprecated rules
 			&Deprecated{},
 			&NoDeprecatedAttr{},

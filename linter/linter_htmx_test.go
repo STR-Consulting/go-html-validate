@@ -4,8 +4,8 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/STR-Consulting/go-html-validate/linter"
-	"github.com/STR-Consulting/go-html-validate/rules"
+	"github.com/toba/go-html-validate/linter"
+	"github.com/toba/go-html-validate/rules"
 )
 
 // htmxTestCase defines a test case for htmx attribute validation.

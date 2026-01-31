@@ -1,4 +1,4 @@
-module github.com/STR-Consulting/go-html-validate
+module github.com/toba/go-html-validate
 
 go 1.24.0
 

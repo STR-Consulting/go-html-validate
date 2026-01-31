@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://raw.githubusercontent.com/STR-Consulting/go-html-validate/main/schemas/htmlint.schema.json",
+  "$id": "https://raw.githubusercontent.com/toba/go-html-validate/main/schemas/htmlint.schema.json",
   "title": "htmlint configuration",
   "description": "Configuration schema for htmlint (.htmlvalidate.json)",
   "type": "object",

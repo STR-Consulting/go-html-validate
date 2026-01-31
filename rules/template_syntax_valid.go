@@ -4,7 +4,7 @@ import (
 	"bytes"
 	"regexp"
 
-	"github.com/STR-Consulting/go-html-validate/parser"
+	"github.com/toba/go-html-validate/parser"
 )
 
 // TemplateSyntaxValid checks for basic Go template syntax errors.

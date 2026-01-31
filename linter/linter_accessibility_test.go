@@ -3,8 +3,8 @@ package linter_test
 import (
 	"testing"
 
-	"github.com/STR-Consulting/go-html-validate/linter"
-	"github.com/STR-Consulting/go-html-validate/rules"
+	"github.com/toba/go-html-validate/linter"
+	"github.com/toba/go-html-validate/rules"
 )
 
 func TestLintContent_ImgAlt(t *testing.T) {

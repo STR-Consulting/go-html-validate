@@ -3,7 +3,7 @@ package linter
 import (
 	"slices"
 
-	"github.com/STR-Consulting/go-html-validate/rules"
+	"github.com/toba/go-html-validate/rules"
 )
 
 // FrameworkConfig configures framework-specific attribute handling.
